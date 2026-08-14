@@ -1,0 +1,2 @@
+"""Independent-window map analyzer."""
+

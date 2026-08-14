@@ -1,0 +1,6 @@
+PySide6>=6.7
+opencv-python>=4.10
+numpy>=1.26
+networkx>=3.2
+Pillow>=10.0
+mss>=9.0

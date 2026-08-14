@@ -1,0 +1,439 @@
+{
+  "template_id": "floor_4_template_05",
+  "floor": 4,
+  "image_file": "resource/4_maps/v5.jpg",
+  "start_node_id": "N0",
+  "nodes": [
+    {
+      "id": "N0",
+      "x": 0.5616438356164384,
+      "y": 0.48492159227985526,
+      "distance_from_start": 0,
+      "is_start": true,
+      "is_end": false
+    },
+    {
+      "id": "N1",
+      "x": 0.0730593607305936,
+      "y": 0.09891435464414958,
+      "distance_from_start": 14,
+      "is_start": false,
+      "is_end": true
+    },
+    {
+      "id": "N2",
+      "x": 0.1948249619482496,
+      "y": 0.09891435464414958,
+      "distance_from_start": 13,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N3",
+      "x": 0.3165905631659056,
+      "y": 0.09891435464414958,
+      "distance_from_start": 14,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N4",
+      "x": 0.4383561643835616,
+      "y": 0.09891435464414958,
+      "distance_from_start": 7,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N5",
+      "x": 0.5616438356164384,
+      "y": 0.09891435464414958,
+      "distance_from_start": 6,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N6",
+      "x": 0.6834094368340944,
+      "y": 0.09891435464414958,
+      "distance_from_start": 5,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N7",
+      "x": 0.8051750380517504,
+      "y": 0.09891435464414958,
+      "distance_from_start": 4,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N8",
+      "x": 0.0730593607305936,
+      "y": 0.29191797346200243,
+      "distance_from_start": 13,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N9",
+      "x": 0.1948249619482496,
+      "y": 0.29191797346200243,
+      "distance_from_start": 12,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N10",
+      "x": 0.4383561643835616,
+      "y": 0.29191797346200243,
+      "distance_from_start": 6,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N11",
+      "x": 0.5616438356164384,
+      "y": 0.29191797346200243,
+      "distance_from_start": 5,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N12",
+      "x": 0.6834094368340944,
+      "y": 0.29191797346200243,
+      "distance_from_start": 4,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N13",
+      "x": 0.8051750380517504,
+      "y": 0.29191797346200243,
+      "distance_from_start": 3,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N14",
+      "x": 0.9269406392694064,
+      "y": 0.29191797346200243,
+      "distance_from_start": 8,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N15",
+      "x": 0.0730593607305936,
+      "y": 0.48492159227985526,
+      "distance_from_start": 12,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N16",
+      "x": 0.1948249619482496,
+      "y": 0.48492159227985526,
+      "distance_from_start": 11,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N17",
+      "x": 0.3165905631659056,
+      "y": 0.48492159227985526,
+      "distance_from_start": 10,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N18",
+      "x": 0.6834094368340944,
+      "y": 0.48492159227985526,
+      "distance_from_start": 1,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N19",
+      "x": 0.8051750380517504,
+      "y": 0.48492159227985526,
+      "distance_from_start": 2,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N20",
+      "x": 0.9269406392694064,
+      "y": 0.48492159227985526,
+      "distance_from_start": 7,
+      "is_start": false,
+      "is_end": true
+    },
+    {
+      "id": "N21",
+      "x": 0.1948249619482496,
+      "y": 0.6803377563329313,
+      "distance_from_start": 10,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N22",
+      "x": 0.3165905631659056,
+      "y": 0.6803377563329313,
+      "distance_from_start": 9,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N23",
+      "x": 0.4383561643835616,
+      "y": 0.6803377563329313,
+      "distance_from_start": 8,
+      "is_start": false,
+      "is_end": true
+    },
+    {
+      "id": "N24",
+      "x": 0.5616438356164384,
+      "y": 0.6803377563329313,
+      "distance_from_start": 7,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N25",
+      "x": 0.8051750380517504,
+      "y": 0.6803377563329313,
+      "distance_from_start": 3,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N26",
+      "x": 0.9269406392694064,
+      "y": 0.6803377563329313,
+      "distance_from_start": 6,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N27",
+      "x": 0.1948249619482496,
+      "y": 0.873341375150784,
+      "distance_from_start": 11,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N28",
+      "x": 0.3165905631659056,
+      "y": 0.873341375150784,
+      "distance_from_start": 8,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N29",
+      "x": 0.4383561643835616,
+      "y": 0.873341375150784,
+      "distance_from_start": 7,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N30",
+      "x": 0.5616438356164384,
+      "y": 0.873341375150784,
+      "distance_from_start": 6,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N31",
+      "x": 0.6834094368340944,
+      "y": 0.873341375150784,
+      "distance_from_start": 5,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N32",
+      "x": 0.8051750380517504,
+      "y": 0.873341375150784,
+      "distance_from_start": 4,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N33",
+      "x": 0.9269406392694064,
+      "y": 0.873341375150784,
+      "distance_from_start": 5,
+      "is_start": false,
+      "is_end": false
+    }
+  ],
+  "edges": [
+    [
+      "N2",
+      "N3"
+    ],
+    [
+      "N5",
+      "N6"
+    ],
+    [
+      "N8",
+      "N9"
+    ],
+    [
+      "N10",
+      "N11"
+    ],
+    [
+      "N11",
+      "N12"
+    ],
+    [
+      "N12",
+      "N13"
+    ],
+    [
+      "N15",
+      "N16"
+    ],
+    [
+      "N0",
+      "N18"
+    ],
+    [
+      "N18",
+      "N19"
+    ],
+    [
+      "N21",
+      "N22"
+    ],
+    [
+      "N22",
+      "N23"
+    ],
+    [
+      "N28",
+      "N29"
+    ],
+    [
+      "N29",
+      "N30"
+    ],
+    [
+      "N30",
+      "N31"
+    ],
+    [
+      "N31",
+      "N32"
+    ],
+    [
+      "N32",
+      "N33"
+    ],
+    [
+      "N1",
+      "N8"
+    ],
+    [
+      "N2",
+      "N9"
+    ],
+    [
+      "N9",
+      "N16"
+    ],
+    [
+      "N16",
+      "N21"
+    ],
+    [
+      "N21",
+      "N27"
+    ],
+    [
+      "N17",
+      "N22"
+    ],
+    [
+      "N22",
+      "N28"
+    ],
+    [
+      "N4",
+      "N10"
+    ],
+    [
+      "N23",
+      "N29"
+    ],
+    [
+      "N24",
+      "N30"
+    ],
+    [
+      "N6",
+      "N12"
+    ],
+    [
+      "N7",
+      "N13"
+    ],
+    [
+      "N13",
+      "N19"
+    ],
+    [
+      "N19",
+      "N25"
+    ],
+    [
+      "N25",
+      "N32"
+    ],
+    [
+      "N14",
+      "N20"
+    ],
+    [
+      "N20",
+      "N26"
+    ],
+    [
+      "N26",
+      "N33"
+    ]
+  ],
+  "end_node_ids": [
+    "N1",
+    "N20",
+    "N23"
+  ],
+  "annotation_source": "opencv-auto-extracted+manual-corrected",
+  "image_width": 1314,
+  "image_height": 829,
+  "source_sha256": "fb15467ee9064368bd6e9ba075d3b2840b0ff1120bf3c712ae4da2f847aaafe0",
+  "metadata": {
+    "detected_ring_candidates": 44,
+    "retained_nodes": 34,
+    "discarded_candidates_outside_start_component": 0,
+    "minimum_retained_edge_score": 0.3139,
+    "requires_manual_review": false,
+    "manual_corrections": [
+      "Removed nonexistent edges N0-N11 and N19-N20."
+    ],
+    "manual_reviewed": true,
+    "distance_metric": "grid_manhattan"
+  }
+}

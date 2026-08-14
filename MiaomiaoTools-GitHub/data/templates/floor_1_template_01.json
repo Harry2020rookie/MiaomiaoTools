@@ -1,0 +1,174 @@
+{
+  "template_id": "floor_1_template_01",
+  "floor": 1,
+  "image_file": "resource/1_maps/v1.jpg",
+  "start_node_id": "N0",
+  "nodes": [
+    {
+      "id": "N0",
+      "x": 0.2566574839302112,
+      "y": 0.5185185185185185,
+      "distance_from_start": 0,
+      "is_start": true,
+      "is_end": false
+    },
+    {
+      "id": "N1",
+      "x": 0.40955004591368227,
+      "y": 0.25120772946859904,
+      "distance_from_start": 4,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N2",
+      "x": 0.5583103764921947,
+      "y": 0.25120772946859904,
+      "distance_from_start": 3,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N3",
+      "x": 0.7089072543617998,
+      "y": 0.25120772946859904,
+      "distance_from_start": 4,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N4",
+      "x": 0.8567493112947658,
+      "y": 0.25120772946859904,
+      "distance_from_start": 5,
+      "is_start": false,
+      "is_end": true
+    },
+    {
+      "id": "N5",
+      "x": 0.40955004591368227,
+      "y": 0.5185185185185185,
+      "distance_from_start": 1,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N6",
+      "x": 0.5583103764921947,
+      "y": 0.5185185185185185,
+      "distance_from_start": 2,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N7",
+      "x": 0.7089072543617998,
+      "y": 0.5185185185185185,
+      "distance_from_start": 3,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N8",
+      "x": 0.40955004591368227,
+      "y": 0.789049919484702,
+      "distance_from_start": 4,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N9",
+      "x": 0.5583103764921947,
+      "y": 0.789049919484702,
+      "distance_from_start": 3,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N10",
+      "x": 0.7089072543617998,
+      "y": 0.789049919484702,
+      "distance_from_start": 4,
+      "is_start": false,
+      "is_end": false
+    },
+    {
+      "id": "N11",
+      "x": 0.8567493112947658,
+      "y": 0.789049919484702,
+      "distance_from_start": 5,
+      "is_start": false,
+      "is_end": true
+    }
+  ],
+  "edges": [
+    [
+      "N1",
+      "N2"
+    ],
+    [
+      "N2",
+      "N3"
+    ],
+    [
+      "N3",
+      "N4"
+    ],
+    [
+      "N0",
+      "N5"
+    ],
+    [
+      "N5",
+      "N6"
+    ],
+    [
+      "N6",
+      "N7"
+    ],
+    [
+      "N8",
+      "N9"
+    ],
+    [
+      "N9",
+      "N10"
+    ],
+    [
+      "N10",
+      "N11"
+    ],
+    [
+      "N2",
+      "N6"
+    ],
+    [
+      "N6",
+      "N9"
+    ],
+    [
+      "N3",
+      "N7"
+    ],
+    [
+      "N7",
+      "N10"
+    ]
+  ],
+  "end_node_ids": [
+    "N4",
+    "N11"
+  ],
+  "annotation_source": "opencv-auto-extracted",
+  "image_width": 1089,
+  "image_height": 621,
+  "source_sha256": "6fac3b54f6d1659ec26c8a1b4bdc1db802498a5025f27d6a57febeb0a749f2f7",
+  "metadata": {
+    "detected_ring_candidates": 17,
+    "retained_nodes": 12,
+    "discarded_candidates_outside_start_component": 0,
+    "minimum_retained_edge_score": 0.9448,
+    "requires_manual_review": true,
+    "distance_metric": "grid_manhattan"
+  }
+}

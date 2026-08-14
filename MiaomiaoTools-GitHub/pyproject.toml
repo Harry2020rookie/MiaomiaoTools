@@ -1,0 +1,10 @@
+[project]
+name = "miaomiao-tools"
+version = "1.0.0"
+description = "黑流树海地图截图识别、节点候选推断与手动编辑工具"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
