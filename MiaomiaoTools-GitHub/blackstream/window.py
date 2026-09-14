@@ -68,6 +68,8 @@ class StandaloneWindow(QMainWindow):
         self.selected_cell: Cell | None = None
         self.undo_stack: list[FloorMapState] = []
         self.redo_stack: list[FloorMapState] = []
+        self.floor_sessions = {}
+        self.manual_floor_sessions = {}
         self.theme = "light"
         self.manual_state = FloorMapState.empty(1, *GRID_SHAPES[1])
         self.manual_selected_cell: Cell | None = None
@@ -333,13 +335,17 @@ class StandaloneWindow(QMainWindow):
             self.template_list.addItem(item)
 
     def _manual_floor_changed(self) -> None:
+        self.manual_floor_sessions[self.manual_state.floor] = (
+            self.manual_state, self.manual_undo_stack, self.manual_redo_stack)
         floor = int(self.manual_floor_combo.currentData())
         self._populate_template_list(floor)
-        self.manual_state = FloorMapState.empty(floor, *GRID_SHAPES[floor])
+        self.manual_state, self.manual_undo_stack, self.manual_redo_stack = self.manual_floor_sessions.get(
+            floor, (FloorMapState.empty(floor, *GRID_SHAPES[floor]), [], []))
         self.manual_canvas.set_state(self.manual_state)
         self.manual_selected_cell = None
         self._clear_manual_inspector()
-        self.status_bar.setText(f"已切换手动编辑至第 {floor} 层，请选择基底。")
+        self._update_manual_history_buttons()
+        self.status_bar.setText(f"已切换手动编辑至第 {floor} 层，保留各层地图。")
 
     def _manual_template_clicked(self, item: QListWidgetItem) -> None:
         floor = int(self.manual_floor_combo.currentData())
@@ -932,8 +938,22 @@ class StandaloneWindow(QMainWindow):
         redo_action.triggered.connect(self._redo)
         self.addAction(redo_action)
 
+    def _save_floor_session(self) -> None:
+        self.floor_sessions[self.state.floor] = (
+            self.state, self.undo_stack, self.redo_stack, self.source_label.text())
+
     def _floor_changed(self) -> None:
-        self._reset_map()
+        self._save_floor_session()
+        floor = int(self.floor_combo.currentData())
+        self.state, self.undo_stack, self.redo_stack, source = self.floor_sessions.get(
+            floor, (FloorMapState.empty(floor, *GRID_SHAPES[floor]), [], [], "尚未载入截图"))
+        self.canvas.set_state(self.state)
+        self.filter_combo.setCurrentIndex(0)
+        self.source_label.setText(source)
+        self._clear_inspector()
+        self._update_history_buttons()
+        self._refresh_summary()
+        self.status_bar.setText(f"已切换至第 {floor} 层，保留各层地图。")
 
     def _distance_visibility_changed(self, enabled: bool) -> None:
         self.canvas.set_show_distances(enabled)
@@ -1056,7 +1076,8 @@ class StandaloneWindow(QMainWindow):
         QApplication.processEvents()
 
     def _apply_recognition(self, state: FloorMapState, source: str) -> None:
-        # Updating the display must not fire _floor_changed and clear the map.
+        self._save_floor_session()
+        # Restore the selector without triggering a second state switch.
         with QSignalBlocker(self.floor_combo):
             self.floor_combo.setCurrentIndex(self.floor_combo.findData(state.floor))
         self.state = state
@@ -1343,7 +1364,9 @@ class StandaloneWindow(QMainWindow):
         self._refresh_summary()
 
     def _node_double_clicked(self, cell: Cell) -> None:
-        slot = self.state.slots[cell]
+        slot = self.state.slots.get(cell)
+        if slot is None:
+            return
         if self.delete_button.isChecked():
             if cell == self.state.start_cell:
                 self.status_bar.setText("起点始终保留，无法删除。")
@@ -1367,7 +1390,7 @@ class StandaloneWindow(QMainWindow):
             if not slot.present:
                 return
             self._push_history()
-            if self.state.current_cell is not None and self.state.current_cell != self.state.start_cell:
+            if self.state.current_cell in self.state.slots and self.state.current_cell != self.state.start_cell:
                 self.state.slots[self.state.current_cell].visited = True
             self.state.current_cell = cell
             if cell != self.state.start_cell:
@@ -1425,8 +1448,8 @@ class StandaloneWindow(QMainWindow):
         self.status_bar.setText(message)
 
     def _clear_history(self) -> None:
-        self.undo_stack.clear()
-        self.redo_stack.clear()
+        self.undo_stack = []
+        self.redo_stack = []
         self._update_history_buttons()
 
     def _update_history_buttons(self) -> None:

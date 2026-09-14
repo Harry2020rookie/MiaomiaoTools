@@ -355,8 +355,7 @@ class MapCanvas(QWidget):
             QPointF(point.x() + radius * 0.48, point.y()),
         )
 
-    @staticmethod
-    def _paint_current_marker(painter: QPainter, point: QPointF) -> None:
+    def _paint_current_marker(self, painter: QPainter, point: QPointF) -> None:
         painter.setPen(QPen(QColor("#38bdf8"), 3))
         painter.setBrush(QColor(14, 165, 233, 55))
         painter.drawEllipse(point, 18, 18)

@@ -22,8 +22,8 @@ app = BUNDLE(
     coll, name="妙妙工具.app", icon=str(project_root / "data/icons/miaomiao.icns"),
     bundle_identifier="io.github.mashiropro.miaomiaotools",
     info_plist={
-        "CFBundleShortVersionString": "1.3.0",
-        "CFBundleVersion": "4",
+        "CFBundleShortVersionString": "1.3.1",
+        "CFBundleVersion": "5",
         "LSMinimumSystemVersion": "14.0",
         "NSHighResolutionCapable": True,
         "NSHumanReadableCopyright": "See bundled NOTICE.md",
