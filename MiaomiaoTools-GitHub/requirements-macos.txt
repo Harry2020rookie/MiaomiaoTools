@@ -1,0 +1,6 @@
+# Only QtCore/QtGui/QtWidgets are used; the large Qt Addons bundle is unnecessary.
+PySide6-Essentials>=6.7,<7
+opencv-python>=4.10,<5
+numpy>=1.26,<2.3
+networkx>=3.2,<4
+Pillow>=10.0,<13

@@ -1,5 +1,15 @@
 # 素材、来源与许可证说明
 
+## macOS 实托邦识别补充
+
+`data/icons/domains/` 的游戏图标取自 PRTS 黑流数据库；每个文件的原始媒体 URL
+保存在 `data/rules/domains.json` 中。游戏素材权利归原权利人所有。
+效果摘要参考 PRTS，并与 Kengxxiao/ArknightsGameData 的游戏数据核对。
+本适配未改变上游项目的许可状态。
+
+- https://prts.wiki/w/沉沦者的黑流树海/黑流数据库
+- https://github.com/Kengxxiao/ArknightsGameData/blob/master/zh_CN/gamedata/excel/roguelike_topic_table.json
+
 ## 项目许可证
 
 本整理目录没有替发布者选择开源许可证。公开上传后，其他人默认只能查看源码，并不自动获得复制、修改或再发布的许可。

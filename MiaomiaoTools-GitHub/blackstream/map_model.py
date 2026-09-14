@@ -24,6 +24,8 @@ class SlotState:
     confidence: float = 0.0
     fixed_end: bool = False
     ideal_source: bool = False
+    domain_affected: bool = False
+    domain_confidence: float = 0.0
     flow_resident: bool = False
     settlement_candidate: bool = False
     settlement_distance: int | None = None
@@ -37,7 +39,7 @@ class SlotState:
         if not self.present:
             return "未生成"
         if self.ideal_source:
-            return "紧急作战 · 理想源"
+            return f"{self.inferred_type or self.node_type or '节点'} · 理想源"
         if self.flow_resident:
             return "流窜“居民”"
         if self.settlement_candidate:
@@ -80,6 +82,14 @@ class FloorMapState:
     current_cell: Cell | None = None
     map_region: tuple[int, int, int, int] | None = None
     status: str = "等待上传截图"
+    domain_idea: str | None = None
+    domain_policy: str | None = None
+    domain_confidence: float = 0.0
+    domain_policy_confidence: float = 0.0
+    domain_removable: bool = True
+    # None means the screenshot may have been taken after any number of moves.
+    resident_moves: int | None = None
+    prediction_warnings: list[str] = field(default_factory=list)
 
     @classmethod
     def empty(cls, floor: int, columns: int, rows: int) -> "FloorMapState":
@@ -130,10 +140,13 @@ class FloorMapState:
             self.current_cell = None
 
     def recompute(self, rules: RuleSet) -> None:
+        self.prediction_warnings = []
+        if self.start_cell is None:
+            self.prediction_warnings.append("起点未确认：暂停基于起点距离的预测，请右键指定起点。")
         self._compute_distances()
         self._mark_fixed_ends()
         self._enforce_single_settlement()
-        self._mark_resident_candidates()
+        self._mark_resident_candidates(rules)
         self._compute_candidates(rules)
 
     def _enforce_single_settlement(self) -> None:
@@ -152,50 +165,48 @@ class FloorMapState:
             slot.inferred_type = None
             slot.confidence = min(slot.confidence, 0.90)
 
-    def _mark_resident_candidates(self) -> None:
+    def _mark_resident_candidates(self, rules: RuleSet) -> None:
         for slot in self.slots.values():
             slot.settlement_candidate = False
             slot.settlement_distance = None
-        flow_cells = [
-            cell
-            for cell, slot in self.slots.items()
-            if slot.present and slot.flow_resident
-        ]
-        settlement_exists = any(
-            slot.present and slot.node_type == "“居民”据点"
-            for slot in self.slots.values()
-        )
-        if self.floor not in {2, 4, 5} or not flow_cells or settlement_exists:
+        base_type = "“居民”据点"
+        flow_cells = [cell for cell, slot in self.slots.items()
+                      if slot.present and slot.flow_resident]
+        if any(slot.present and slot.node_type == base_type for slot in self.slots.values()):
             return
-        possible: set[Cell] | None = None
-        distances_by_flow: dict[Cell, dict[Cell, int]] = {}
-        for origin in flow_cells:
-            distances = {origin: 0}
-            queue: deque[Cell] = deque([origin])
-            while queue:
-                cell = queue.popleft()
-                if distances[cell] >= 5:
-                    continue
-                for neighbor in self.neighbors(cell):
-                    if neighbor not in distances:
-                        distances[neighbor] = distances[cell] + 1
-                        queue.append(neighbor)
-            distances_by_flow[origin] = distances
-            reachable = {
-                cell
-                for cell, distance in distances.items()
-                if distance <= 5
-                and cell not in flow_cells
-                and self.slots[cell].present
-                and self.slots[cell].node_type == "未知的凶戾"
-            }
-            possible = reachable if possible is None else possible & reachable
-        for cell in possible or set():
-            slot = self.slots[cell]
+        if rules.generation_maximum(base_type, self.floor) == 0:
+            return
+        # The five-step radius applies only to initial spawning. After n player
+        # moves, 5+n is a necessary (not sufficient) bound. Never infer n from
+        # action points or distance to the player: backtracking is possible.
+        limit = None if self.resident_moves is None else 5 + max(0, self.resident_moves)
+        if limit is None and flow_cells:
+            self.prediction_warnings.append("居民移动次数未知：据点仅按楼层和起点距离筛选。")
+        distances_by_flow = []
+        if limit is not None:
+            for origin in flow_cells:
+                distances = {origin: 0}
+                queue = deque([origin])
+                while queue:
+                    cell = queue.popleft()
+                    if distances[cell] >= limit:
+                        continue
+                    for neighbor in self.neighbors(cell):
+                        if self.slots[neighbor].present and neighbor not in distances:
+                            distances[neighbor] = distances[cell] + 1
+                            queue.append(neighbor)
+                distances_by_flow.append(distances)
+        for cell, slot in self.slots.items():
+            if (not slot.present or slot.node_type != "未知的凶戾"
+                    or slot.flow_resident or (slot.ideal_source and self.domain_removable)):
+                continue
+            if slot.distance is not None and not rules.distance_rules[base_type].allows(self.floor, slot.distance):
+                continue
+            if distances_by_flow and any(cell not in distances for distances in distances_by_flow):
+                continue
             slot.settlement_candidate = True
-            slot.settlement_distance = max(
-                distances_by_flow[origin].get(cell, 99) for origin in flow_cells
-            )
+            if distances_by_flow:
+                slot.settlement_distance = max(distances[cell] for distances in distances_by_flow)
 
     def _compute_distances(self) -> None:
         for slot in self.slots.values():
@@ -269,7 +280,7 @@ class FloorMapState:
                 )
                 mystery_cells[key] = cell
             elif slot.node_type == "未知的凶戾":
-                if slot.ideal_source:
+                if slot.ideal_source and self.domain_removable:
                     slot.candidates = ["紧急作战"]
                     slot.inferred_type = "紧急作战"
                     continue
@@ -283,6 +294,8 @@ class FloorMapState:
                         < rules.generation_maximum(node_type, self.floor)
                     )
                 ]
+                if slot.settlement_candidate:
+                    slot.candidates.append("“居民”据点")
                 if len(slot.candidates) == 1:
                     slot.inferred_type = slot.candidates[0]
         if mystery_predictions:
@@ -291,6 +304,9 @@ class FloorMapState:
                 floor=self.floor,
                 predictions=mystery_predictions,
                 appeared_counts=appeared,
+                complete_initial_map=(self.resident_moves == 0 and self.reference_template_id is not None
+                                      and not self.reference_template_needs_review),
+                warnings=self.prediction_warnings,
             )
             for key, candidates in reduced.items():
                 slot = self.slots[mystery_cells[key]]

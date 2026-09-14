@@ -10,6 +10,8 @@ from models.grid_geometry import locate_template_points
 from models.map_template import MapTemplate
 from rules.rule_loader import load_rules
 from vision.image_io import read_image, read_image_bytes
+from vision.floor_detector import detect_floor
+from vision.domain_detector import DomainDetector
 from vision.ideal_source_detector import IdealSourceDetector
 from vision.flow_resident_detector import FlowResidentDetector
 from vision.node_grid_detector import NodeGridDetector
@@ -30,13 +32,21 @@ class SlotRecognizer:
         self.project_root = Path(project_root)
         self.node_detector = NodeTypeDetector(self.project_root)
         self.grid_detector = NodeGridDetector()
+        self.domain_detector = DomainDetector(self.project_root)
         self.rules = load_rules(self.project_root / "data/rules")
 
-    def recognize_path(self, path: str | Path, floor: int) -> FloorMapState:
+    def recognize_path(
+        self, path: str | Path, floor: int, *, auto_floor: bool = False
+    ) -> FloorMapState:
         image = read_image(path)
         if image is None:
             raise SlotRecognitionError(f"无法读取图片：{path}")
-        state = self.recognize(image, floor)
+        detected_floor = detect_floor(image) if auto_floor else None
+        state = self.recognize(image, detected_floor if detected_floor is not None else floor)
+        if auto_floor:
+            prefix = (f"自动识别为第 {detected_floor} 层。" if detected_floor is not None
+                      else f"未能确定截图层数，已按手选第 {floor} 层识别，请核对。")
+            state.status = prefix + state.status
         state.source_path = str(path)
         return state
 
@@ -54,6 +64,44 @@ class SlotRecognizer:
         return state
 
     def recognize(self, image: np.ndarray, floor: int) -> FloorMapState:
+        state = self._recognize_map(image, floor)
+        header = self.domain_detector.detect_header(image)
+        state.domain_idea, state.domain_policy = header.idea, header.policy
+        state.domain_confidence = header.confidence
+        state.domain_policy_confidence = header.policy_confidence
+        if header.idea:
+            state.domain_removable = self.domain_detector.by_id[header.idea]["removable"]
+        offset_x, offset_y = state.map_region[:2] if state.map_region else (0, 0)
+        first = state.slots[(0, 0)].screen_center
+        second = state.slots[(1, 1)].screen_center
+        step = min(abs(second[0]-first[0]), abs(second[1]-first[1]))
+        last = state.slots[(state.columns-1, state.rows-1)].screen_center
+        bounds = (first[0]+offset_x-step, first[1]+offset_y-step,
+                  last[0]+offset_x+step, last[1]+offset_y+step)
+        fog = self.domain_detector.segment_fog(image, bounds, step) if header.idea else None
+        for slot in state.slots.values():
+            if not slot.present or slot.screen_center is None:
+                continue
+            center = (slot.screen_center[0]+offset_x, slot.screen_center[1]+offset_y)
+            if fog is not None:
+                slot.domain_confidence = self.domain_detector.fog_coverage(fog, center, step)
+                slot.domain_affected = slot.domain_confidence >= .5
+            # Mesh can obscure the central icon, so include unresolved nodes.
+            # A purple combat icon plus radial mesh is required to avoid UI,
+            # merchants and ordinary glowing encounters becoming ideal sources.
+            if (state.domain_removable and
+                    slot.node_type in {None, "未知的凶戾", "紧急作战"} and
+                    IdealSourceDetector.has_purple_combat_icon(image, center, step) and
+                    IdealSourceDetector.detect(image, center, step)):
+                slot.ideal_source = True
+                slot.domain_affected = True
+                slot.domain_confidence = max(slot.domain_confidence, .85)
+                if slot.node_type is None:
+                    slot.node_type = "未知的凶戾"
+        state.recompute(self.rules)
+        return state
+
+    def _recognize_map(self, image: np.ndarray, floor: int) -> FloorMapState:
         if floor not in GRID_SHAPES:
             raise SlotRecognitionError(f"不支持的层数：{floor}")
         if not self._uses_relative_map_region(image):
@@ -199,28 +247,12 @@ class SlotRecognizer:
                 and edge.score >= 0.50
             )
 
-        if floor == 2:
-            grid_step = min(inspection.frame.step_x, inspection.frame.step_y)
-            for slot in state.slots.values():
-                if (
-                    slot.present
-                    and slot.node_type == "未知的凶戾"
-                    and slot.screen_center is not None
-                ):
-                    slot.ideal_source = IdealSourceDetector.detect(
-                        image, slot.screen_center, grid_step
-                    )
-
         self._reconcile_reference_topology(state)
         if state.reference_template_id == "floor_5_template_07":
             state.trim_trailing_columns(9)
             if live_cell not in state.slots:
                 live_cell = None
 
-        if state.start_cell is None and live_cell is not None:
-            # Without a unique template match, the live actor is the best
-            # available fallback. The user can correct it manually.
-            state.start_cell = live_cell
         if state.start_cell is not None:
             start = state.slots[state.start_cell]
             start.present = True

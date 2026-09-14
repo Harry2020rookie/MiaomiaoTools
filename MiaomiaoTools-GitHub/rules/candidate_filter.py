@@ -187,6 +187,8 @@ def propagate_global_capacities(
     floor: int,
     predictions: Mapping[str, list[str]],
     appeared_counts: Mapping[str, int] | None = None,
+    complete_initial_map: bool = True,
+    warnings: list[str] | None = None,
 ) -> dict[str, list[str]]:
     """Prune candidates using one global min/max constrained assignment.
 
@@ -220,11 +222,11 @@ def propagate_global_capacities(
         minimum = None if limit is None else limit.minimum
         maximum = None if limit is None else limit.maximum
         visible = appeared_counts.get(node_type, 0)
-        minimums[node_type] = max(0, (minimum or 0) - visible)
+        minimums[node_type] = max(0, (minimum or 0) - visible) if complete_initial_map else 0
         maximums[node_type] = (
             node_count if maximum is None else max(0, maximum - visible)
         )
-        if limit is not None and limit.allowed_counts is not None:
+        if complete_initial_map and limit is not None and limit.allowed_counts is not None:
             allowed_totals[node_type] = frozenset(
                 total - visible
                 for total in limit.allowed_counts
@@ -237,6 +239,8 @@ def propagate_global_capacities(
         maximums=maximums,
         allowed_totals=allowed_totals,
     ):
+        if warnings is not None:
+            warnings.append("节点数量约束冲突：已保留独立候选，请检查节点和连线识别。")
         return independent
 
     reduced: dict[str, list[str]] = {}

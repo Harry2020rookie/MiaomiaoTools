@@ -19,8 +19,12 @@ def main() -> int:
         )
     app = QApplication(sys.argv)
     app.setApplicationName("妙妙工具")
+    app.setApplicationVersion("1.2.0")
     app.setStyle("Fusion")
     window = StandaloneWindow(PROJECT_ROOT)
+    if sys.platform == "darwin" and app.primaryScreen() is not None:
+        available = app.primaryScreen().availableGeometry()
+        window.resize(min(1320, available.width() - 40), min(820, available.height() - 60))
     window.show()
     return app.exec()
 

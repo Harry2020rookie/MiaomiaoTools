@@ -138,12 +138,19 @@ class NodeTypeDetector:
 
     @staticmethod
     def _load_text_font() -> ImageFont.FreeTypeFont | None:
-        """Load a Windows CJK font for constrained node-label recognition."""
+        """Load an available CJK font for constrained node-label recognition."""
 
         windows_root = Path(os.environ.get("WINDIR", r"C:\Windows"))
-        for name in ("msyh.ttc", "msyhl.ttc", "simhei.ttf", "simsun.ttc"):
+        candidates = [windows_root / "Fonts" / name for name in
+                      ("msyh.ttc", "msyhl.ttc", "simhei.ttf", "simsun.ttc")]
+        candidates.extend(Path(name) for name in (
+            "/System/Library/Fonts/PingFang.ttc",
+            "/System/Library/Fonts/STHeiti Medium.ttc",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        ))
+        for path in candidates:
             try:
-                return ImageFont.truetype(str(windows_root / "Fonts" / name), 64)
+                return ImageFont.truetype(str(path), 64)
             except OSError:
                 continue
         return None

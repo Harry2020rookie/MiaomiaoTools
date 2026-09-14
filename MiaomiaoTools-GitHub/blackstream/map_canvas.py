@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from pathlib import Path
 
 from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
@@ -20,7 +21,8 @@ class MapCanvas(QWidget):
 
     def __init__(self, project_root: Path) -> None:
         super().__init__()
-        self.setMinimumSize(700, 500)
+        self.setMinimumSize(540 if sys.platform == "darwin" else 700, 500)
+        self.label_font_family = "PingFang SC" if sys.platform == "darwin" else "Microsoft YaHei UI"
         self.setMouseTracking(True)
         self.setAcceptDrops(True)
         self.state = FloorMapState.empty(1, 5, 3)
@@ -125,8 +127,23 @@ class MapCanvas(QWidget):
         self._paint_grid_texture(painter)
         self._node_points = self._layout_points()
         self._edge_paths = {}
+        self._paint_domains(painter)
         self._paint_edges(painter)
         self._paint_nodes(painter)
+
+    def _paint_domains(self, painter: QPainter) -> None:
+        step_x = abs(self._node_points[(1, 0)].x()-self._node_points[(0, 0)].x())
+        step_y = abs(self._node_points[(0, 1)].y()-self._node_points[(0, 0)].y())
+        painter.save()
+        for cell, slot in self.state.slots.items():
+            if not slot.present or not slot.domain_affected:
+                continue
+            point = self._node_points[cell]
+            painter.setBrush(QColor(168, 85, 247, 24))
+            painter.setPen(QPen(QColor(168, 85, 247, 95), 1, Qt.PenStyle.DashLine))
+            painter.drawRoundedRect(QRectF(point.x()-step_x*.43, point.y()-step_y*.43,
+                                           step_x*.86, step_y*.86), 14, 14)
+        painter.restore()
 
     def _paint_background_image(self, painter: QPainter) -> None:
         if self.background_pixmap.isNull():
@@ -187,6 +204,13 @@ class MapCanvas(QWidget):
             point = self._node_points[cell]
             selected = cell == self.selected_cell
             painter.save()
+            if slot.ideal_source and slot.present:
+                painter.setBrush(Qt.BrushStyle.NoBrush)
+                painter.setPen(QPen(QColor("#a855f7"), 3))
+                painter.drawEllipse(point, icon_radius*.75, icon_radius*.75)
+                painter.setFont(QFont(self.label_font_family, 9, QFont.Weight.Bold))
+                painter.drawText(QRectF(point.x()-45, point.y()-icon_radius-18, 90, 18),
+                                 Qt.AlignmentFlag.AlignCenter, "理想源")
             if selected:
                 painter.setPen(QPen(QColor(56, 189, 248, 145), 2))
                 painter.setBrush(QColor(14, 165, 233, 18))
@@ -198,7 +222,7 @@ class MapCanvas(QWidget):
                 painter.setBrush(fill)
                 painter.drawEllipse(point, 12, 12)
                 painter.setPen(QColor("#64748b") if self.theme == "light" else QColor(115, 123, 130))
-                painter.setFont(QFont("Microsoft YaHei UI", 8))
+                painter.setFont(QFont(self.label_font_family, 8))
                 painter.drawText(
                     QRectF(point.x() - 28, point.y() + 18, 56, 18),
                     Qt.AlignmentFlag.AlignCenter,
@@ -226,7 +250,7 @@ class MapCanvas(QWidget):
                 painter.drawEllipse(point, start_radius, start_radius)
                 painter.setPen(QColor("#111318"))
                 painter.setFont(
-                    QFont("Microsoft YaHei UI", 13 if compact else 16, QFont.Weight.Bold)
+                    QFont(self.label_font_family, 13 if compact else 16, QFont.Weight.Bold)
                 )
                 painter.drawText(QRectF(point.x() - 30, point.y() - 30, 60, 60), Qt.AlignmentFlag.AlignCenter, "起")
             elif display_type or slot.settlement_candidate:
@@ -270,10 +294,12 @@ class MapCanvas(QWidget):
             label_font_size = 8 if self.state.columns >= 7 else 9
             label_width = 92 if compact else 156
             painter.setFont(
-                QFont("Microsoft YaHei UI", label_font_size, QFont.Weight.DemiBold)
+                QFont(self.label_font_family, label_font_size, QFont.Weight.DemiBold)
             )
             painter.setPen(QColor("#172033") if self.theme == "light" else QColor("#e4e4e7"))
             label = slot.label
+            if slot.ideal_source:
+                label = slot.inferred_type or slot.node_type or "节点"
             if len(slot.candidates) > 1 and display_type:
                 label = slot.node_type or "候选"
             if slot.fixed_end and slot.confidence < 0.99:
@@ -335,7 +361,7 @@ class MapCanvas(QWidget):
         painter.setBrush(QColor(14, 165, 233, 55))
         painter.drawEllipse(point, 18, 18)
         painter.setPen(QColor("#e0f2fe"))
-        painter.setFont(QFont("Microsoft YaHei UI", 8, QFont.Weight.Bold))
+        painter.setFont(QFont(self.label_font_family, 8, QFont.Weight.Bold))
         painter.drawText(
             QRectF(point.x() - 38, point.y() + 22, 76, 18),
             Qt.AlignmentFlag.AlignCenter,

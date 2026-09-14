@@ -1,20 +1,23 @@
 from __future__ import annotations
 
 import copy
+import sys
 from pathlib import Path
 
-import mss
 import numpy as np
-from PySide6.QtCore import Qt, QTimer, QSize, QMimeData
+from PySide6.QtCore import Qt, QTimer, QSize, QMimeData, QStandardPaths, QSignalBlocker
 from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
     QCheckBox,
     QComboBox,
+    QDialog,
+    QDialogButtonBox,
     QFileDialog,
     QFrame,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QListWidget,
     QListWidgetItem,
@@ -56,6 +59,10 @@ class StandaloneWindow(QMainWindow):
     def __init__(self, project_root: Path) -> None:
         super().__init__()
         self.project_root = project_root
+        self.manual_capture_only = sys.platform == "darwin"
+        self.image_directory = QStandardPaths.writableLocation(
+            QStandardPaths.StandardLocation.PicturesLocation
+        ) or str(Path.home())
         self.recognizer = SlotRecognizer(project_root)
         self.state = FloorMapState.empty(1, *GRID_SHAPES[1])
         self.selected_cell: Cell | None = None
@@ -66,7 +73,7 @@ class StandaloneWindow(QMainWindow):
         self.manual_selected_cell: Cell | None = None
         self.manual_undo_stack: list[FloorMapState] = []
         self.manual_redo_stack: list[FloorMapState] = []
-        self.setWindowTitle("妙妙工具")
+        self.setWindowTitle("妙妙工具 · 实托邦识别版")
         self.setWindowIcon(QIcon(str(project_root / "data/icons/wrong-turn.png")))
         self.resize(1320, 820)
         self.setMinimumSize(1080, 680)
@@ -121,7 +128,7 @@ class StandaloneWindow(QMainWindow):
         self.mode_stack.addWidget(self.manual_page)
         root_layout.addWidget(self.mode_stack, 1)
 
-        self.status_bar = QLabel("选择层数后上传完整游戏截图。")
+        self.status_bar = QLabel("选择完整游戏截图，默认自动识别层数；图片仅在本机处理。")
         self.status_bar.setObjectName("statusBar")
         root_layout.addWidget(self.status_bar)
         self.setCentralWidget(root)
@@ -495,13 +502,18 @@ class StandaloneWindow(QMainWindow):
             self.floor_combo.addItem(f"第 {floor} 层", floor)
         self.floor_combo.currentIndexChanged.connect(self._floor_changed)
         layout.addWidget(self.floor_combo)
-        self.upload_button = QPushButton("上传并识别截图")
+        self.auto_floor_checkbox = QCheckBox("自动识别层数")
+        self.auto_floor_checkbox.setChecked(True)
+        self.auto_floor_checkbox.setToolTip("读取截图顶部层数；无法确定时使用下拉框层数。取消勾选可手动指定。")
+        layout.addWidget(self.auto_floor_checkbox)
+        self.upload_button = QPushButton("选择截图并识别")
         self.upload_button.setObjectName("primaryButton")
         self.upload_button.clicked.connect(self._choose_image)
         layout.addWidget(self.upload_button)
         self.capture_button = QPushButton("实时截图并识别")
         self.capture_button.clicked.connect(self._capture_screen)
         layout.addWidget(self.capture_button)
+        self.capture_button.setVisible(not self.manual_capture_only)
         self.reset_button = QPushButton("清空当前地图")
         self.reset_button.clicked.connect(self._reset_map)
         layout.addWidget(self.reset_button)
@@ -587,6 +599,15 @@ class StandaloneWindow(QMainWindow):
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(14, 14, 14, 14)
         layout.setSpacing(8)
+        self.domain_button = QPushButton("实托邦：未检出\n查看效果 / 校正")
+        self.domain_button.clicked.connect(self._edit_domain)
+        layout.addWidget(self.domain_button)
+        legend = QLabel("淡紫框：疑似雾区 · 紫环：理想源")
+        legend.setObjectName("hint")
+        layout.addWidget(legend)
+        self.prediction_button = QPushButton("居民移动次数：未知 · 设置")
+        self.prediction_button.clicked.connect(self._edit_prediction_context)
+        layout.addWidget(self.prediction_button)
         title = QLabel("节点详情")
         title.setObjectName("sectionTitle")
         layout.addWidget(title)
@@ -633,6 +654,99 @@ class StandaloneWindow(QMainWindow):
         self.summary.setWordWrap(True)
         layout.addWidget(self.summary)
         return panel
+
+    def _edit_domain(self) -> None:
+        dialog = QDialog(self)
+        dialog.setWindowTitle("实托邦效果与校正")
+        dialog.resize(560, 420)
+        layout = QVBoxLayout(dialog)
+        idea, policy = QComboBox(), QComboBox()
+        idea.addItem("未识别 / 无", None)
+        policy.addItem("未识别 / 无", None)
+        detector = self.recognizer.domain_detector
+        for entry in detector.catalog:
+            combo = idea if entry["kind"] == "idea" else policy
+            combo.addItem(QIcon(str(self.project_root / entry["icon"])), entry["name"], entry["id"])
+        idea.setCurrentIndex(max(0, idea.findData(self.state.domain_idea)))
+        policy.setCurrentIndex(max(0, policy.findData(self.state.domain_policy)))
+        layout.addWidget(QLabel("理念（大图标）"))
+        layout.addWidget(idea)
+        layout.addWidget(QLabel("方针（右下角小图标）"))
+        layout.addWidget(policy)
+        effects = QLabel()
+        effects.setWordWrap(True)
+        effects.setMinimumHeight(140)
+        layout.addWidget(effects)
+
+        def refresh_effects():
+            lines = []
+            for combo in (idea, policy):
+                entry = detector.by_id.get(combo.currentData())
+                if not entry:
+                    continue
+                lines.append(entry["name"])
+                if entry["kind"] == "idea":
+                    lines.extend(f"{phase}：{text}" for phase, text in zip(
+                        ("早期", "中期", "晚期"), entry["effects"]))
+                else:
+                    lines.extend(entry["effects"])
+                if entry.get("note"):
+                    lines.append(entry["note"])
+            effects.setText("\n".join(lines) or "未识别到实托邦，可在此手动选择。")
+
+        idea.currentIndexChanged.connect(refresh_effects)
+        policy.currentIndexChanged.connect(refresh_effects)
+        refresh_effects()
+        hint = QLabel("强度未从截图判断，以上列出各阶段效果。\n雾区为视觉估计，非精确边界；右键节点可校正雾区及理想源。")
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
+        source = QLabel('<a href="https://prts.wiki/w/沉沦者的黑流树海/黑流数据库">资料：PRTS 黑流数据库</a>')
+        source.setOpenExternalLinks(True)
+        layout.addWidget(source)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
+        buttons.button(QDialogButtonBox.StandardButton.Save).setText("保存")
+        buttons.button(QDialogButtonBox.StandardButton.Cancel).setText("取消")
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self._set_domain(idea.currentData(), policy.currentData())
+
+    def _set_domain(self, idea: str | None, policy: str | None) -> None:
+        if (idea, policy) == (self.state.domain_idea, self.state.domain_policy):
+            return
+        self._push_history()
+        self.state.domain_idea, self.state.domain_policy = idea, policy
+        self.state.domain_confidence = 1.0 if idea else 0.
+        self.state.domain_policy_confidence = 1.0 if policy else 0.
+        entry = self.recognizer.domain_detector.by_id.get(idea)
+        self.state.domain_removable = entry["removable"] if entry else True
+        if not self.state.domain_removable:
+            for slot in self.state.slots.values():
+                slot.ideal_source = False
+        self.state.recompute(self.recognizer.rules)
+        self._restore_history_state("已更新实托邦信息；雾区范围可逐节点校正。")
+
+    def _toggle_domain_flag(self, cell: Cell, field: str) -> None:
+        if field not in {"ideal_source", "domain_affected"}:
+            return
+        slot = self.state.slots[cell]
+        if not slot.present:
+            return
+        if field == "ideal_source" and not self.state.domain_removable:
+            self.status_bar.setText("当前理念不可消除，不标记理想源。")
+            return
+        self._push_history()
+        setattr(slot, field, not getattr(slot, field))
+        if field == "ideal_source" and slot.ideal_source:
+            slot.domain_affected = True
+            if slot.node_type not in {"未知的凶戾", "紧急作战"}:
+                slot.node_type = "未知的凶戾"
+        if field == "domain_affected" and not slot.domain_affected:
+            slot.ideal_source = False
+        slot.domain_confidence = 1.0 if slot.domain_affected else 0.
+        self.state.recompute(self.recognizer.rules)
+        self._restore_history_state("已校正实托邦标记。")
 
     def _populate_types(self) -> None:
         self.type_combo.addItem("未生成槽位", "__absent__")
@@ -772,7 +886,7 @@ class StandaloneWindow(QMainWindow):
             }
         self.setStyleSheet(
             f"""
-            QMainWindow, QWidget {{ background: {colors['window']}; color: {colors['text']}; font-family: 'Microsoft YaHei UI'; font-size: 12px; }}
+            QMainWindow, QWidget {{ background: {colors['window']}; color: {colors['text']}; font-family: {'PingFang SC' if self.manual_capture_only else 'Microsoft YaHei UI'}; font-size: 12px; }}
             QLabel, QCheckBox {{ background: transparent; }}
             #topbar {{ background: {colors['panel']}; border-bottom: 1px solid {colors['border']}; }}
             #brandIcon {{ min-width: 36px; max-width: 36px; min-height: 36px; max-height: 36px; border-radius: 5px; background: {colors['accent_soft']}; border: 1px solid {colors['border']}; qproperty-alignment: AlignCenter; }}
@@ -808,6 +922,7 @@ class StandaloneWindow(QMainWindow):
         action.setShortcut(QKeySequence.StandardKey.Open)
         action.triggered.connect(self._choose_image)
         self.addAction(action)
+        self.open_image_action = action
         undo_action = QAction(self)
         undo_action.setShortcut(QKeySequence.StandardKey.Undo)
         undo_action.triggered.connect(self._undo)
@@ -879,14 +994,18 @@ class StandaloneWindow(QMainWindow):
         path, _ = QFileDialog.getOpenFileName(
             self,
             "选择完整游戏截图",
-            str(self.project_root / "data/screen"),
-            "图片 (*.png *.jpg *.jpeg *.bmp)",
+            self.image_directory,
+            "图片 (*.png *.jpg *.jpeg *.bmp);;所有文件 (*)",
         )
         if not path:
             return
+        self.image_directory = str(Path(path).parent)
         try:
             self._set_recognition_busy(True)
-            state = self.recognizer.recognize_path(path, int(self.floor_combo.currentData()))
+            state = self.recognizer.recognize_path(
+                path, int(self.floor_combo.currentData()),
+                auto_floor=self.auto_floor_checkbox.isChecked(),
+            )
         except (SlotRecognitionError, ValueError) as exc:
             QMessageBox.warning(self, "识别失败", str(exc))
             self.status_bar.setText(str(exc))
@@ -896,13 +1015,19 @@ class StandaloneWindow(QMainWindow):
         self._apply_recognition(state, Path(path).name)
 
     def _capture_screen(self) -> None:
+        if self.manual_capture_only:
+            return
         self._set_recognition_busy(True)
         self.status_bar.setText("窗口已最小化，正在截取主屏幕...")
         self.showMinimized()
         QTimer.singleShot(800, self._finish_screen_capture)
 
     def _finish_screen_capture(self) -> None:
+        if self.manual_capture_only:
+            return
         try:
+            import mss
+
             with mss.mss() as capture:
                 shot = capture.grab(capture.monitors[1])
                 image = np.asarray(shot)[:, :, :3].copy()
@@ -923,11 +1048,17 @@ class StandaloneWindow(QMainWindow):
     def _set_recognition_busy(self, busy: bool) -> None:
         self.upload_button.setEnabled(not busy)
         self.capture_button.setEnabled(not busy)
+        self.floor_combo.setEnabled(not busy)
+        self.auto_floor_checkbox.setEnabled(not busy)
+        self.open_image_action.setEnabled(not busy)
         if busy:
             self.status_bar.setText("正在识别固定槽位、节点图标和连线...")
         QApplication.processEvents()
 
     def _apply_recognition(self, state: FloorMapState, source: str) -> None:
+        # Updating the display must not fire _floor_changed and clear the map.
+        with QSignalBlocker(self.floor_combo):
+            self.floor_combo.setCurrentIndex(self.floor_combo.findData(state.floor))
         self.state = state
         self.canvas.set_state(state)
         self.filter_combo.setCurrentIndex(0)
@@ -982,6 +1113,8 @@ class StandaloneWindow(QMainWindow):
         self.node_title.setText(f"第 {cell[1] + 1} 行 · 第 {cell[0] + 1} 列")
         distance = "不可达" if slot.distance is None else str(slot.distance)
         self.node_meta.setText(f"状态：{slot.label}\nBFS 距离：{distance}")
+        if slot.domain_affected:
+            self.node_meta.setText(self.node_meta.text() + "\n实托邦范围：已标记（可右键校正）")
         target = "__absent__" if not slot.present else (slot.node_type or "__empty__")
         index = self.type_combo.findData(target)
         self.type_combo.blockSignals(True)
@@ -1003,6 +1136,13 @@ class StandaloneWindow(QMainWindow):
         self._select_node(cell)
         slot = self.state.slots[cell]
         menu = QMenu(self)
+        for field, text in (("domain_affected", "实托邦范围节点"), ("ideal_source", "理想源")):
+            mark = menu.addAction(text)
+            mark.setCheckable(True)
+            mark.setChecked(getattr(slot, field))
+            mark.setEnabled(slot.present and (field != "ideal_source" or self.state.domain_removable))
+            mark.triggered.connect(lambda _checked=False, key=field: self._toggle_domain_flag(cell, key))
+        menu.addSeparator()
         candidates_menu = menu.addMenu("当前节点候选")
         candidates = self._context_candidates(slot)
         if not candidates:
@@ -1234,6 +1374,20 @@ class StandaloneWindow(QMainWindow):
                 slot.visited = True
             self._after_mutation("当前位置已更新。")
 
+    def _edit_prediction_context(self) -> None:
+        moves, accepted = QInputDialog.getInt(
+            self, "当前截图的预测条件",
+            "进入本层后、拍摄此截图前的移动次数：\n"
+            "-1 = 未知；0 = 刚进入本层。填写移动次数，不是行动力消耗。\n"
+            "每张新截图会重置为未知。",
+            -1 if self.state.resident_moves is None else self.state.resident_moves,
+            -1, 9999,
+        )
+        if accepted:
+            self._push_history()
+            self.state.resident_moves = None if moves < 0 else moves
+            self._after_mutation("已更新居民据点预测条件；候选不代表必定存在据点。")
+
     def _after_mutation(self, message: str) -> None:
         self.state.recompute(self.recognizer.rules)
         self.canvas.update()
@@ -1290,6 +1444,12 @@ class StandaloneWindow(QMainWindow):
         self.candidate_list.clear()
 
     def _refresh_summary(self) -> None:
+        catalog = self.recognizer.domain_detector.by_id
+        idea = catalog.get(self.state.domain_idea, {}).get("name", "未检出")
+        policy = catalog.get(self.state.domain_policy, {}).get("name", "方针未检出")
+        self.domain_button.setText(f"理念：{idea}\n方针：{policy} · 查看/校正")
+        moves = self.state.resident_moves
+        self.prediction_button.setText(f"居民移动次数：{'未知' if moves is None else moves} · 设置")
         present = sum(slot.present for slot in self.state.slots.values())
         edges = sum(edge.present for edge in self.state.edges.values())
         unknown = sum(
@@ -1306,4 +1466,5 @@ class StandaloneWindow(QMainWindow):
             f"图节点  {present}\n连线  {edges}\n待推断节点  {unknown}\n"
             f"理想源  {ideal_sources}\n流窜居民  {flow_residents}\n"
             f"居民据点候选  {settlement_candidates}\n固定险路尽头  {fixed_ends}"
+            + ("\n\n" + "\n".join(self.state.prediction_warnings) if self.state.prediction_warnings else "")
         )

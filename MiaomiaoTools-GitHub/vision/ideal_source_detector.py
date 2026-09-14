@@ -8,6 +8,19 @@ class IdealSourceDetector:
     """Detect the radial mesh surrounding an ideal-source node."""
 
     @staticmethod
+    def has_purple_combat_icon(image, center, grid_step) -> bool:
+        x, y = map(round, center)
+        radius = max(5, round(grid_step * .23))
+        crop = image[max(0, y-radius):min(image.shape[0], y+radius),
+                     max(0, x-radius):min(image.shape[1], x+radius)]
+        if crop.size == 0:
+            return False
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        purple = ((hsv[:, :, 0] > 120) & (hsv[:, :, 0] < 170)
+                  & (hsv[:, :, 1] > 55) & (hsv[:, :, 2] > 25))
+        return float(np.mean(purple)) >= .07
+
+    @staticmethod
     def detect(
         image: np.ndarray,
         center: tuple[float, float],

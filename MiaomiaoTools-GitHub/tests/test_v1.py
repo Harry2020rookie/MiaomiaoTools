@@ -333,6 +333,7 @@ def test_floor_four_flow_residents_reverse_infer_hidden_base(project_root: Path)
 
     state.slots[(0, 4)].node_type = "未知的凶戾"
     state.slots[(0, 4)].confidence = 0.90
+    state.resident_moves = 0  # Explicit initial-spawn hypothesis for this fixture.
     state.recompute(recognizer.rules)
     candidates = {
         cell: slot.settlement_distance

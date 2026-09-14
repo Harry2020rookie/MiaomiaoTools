@@ -1,0 +1,197 @@
+{
+  "sources": [
+    "https://prts.wiki/w/沉沦者的黑流树海/黑流数据库",
+    "https://github.com/Kengxxiao/ArknightsGameData/blob/master/zh_CN/gamedata/excel/roguelike_topic_table.json"
+  ],
+  "checked_on": "2026-09-14",
+  "entries": [
+    {
+      "id": "idea_1",
+      "name": "黑流地脉",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/9/99/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E9%BB%91%E6%B5%81%E5%9C%B0%E8%84%89%E2%80%9D.png?v=j823e6spvikyq0s10k6d2wd7sugoqjw",
+      "effects": [
+        "额外猎犬；敌方攻/血 +10%",
+        "额外猎犬；敌方攻/血 +20%",
+        "更多猎犬；敌方攻/血 +30%"
+      ],
+      "icon": "data/icons/domains/idea_1.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_2",
+      "name": "倾斜沙丘",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/b/bf/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E5%80%BE%E6%96%9C%E6%B2%99%E4%B8%98%E2%80%9D.png?v=3fsmikwkwm9gesiwr0afgw73a8cvxlw",
+      "effects": [
+        "逆沙尘部署：攻击 -20%；敌速 -15%",
+        "逆沙尘部署：攻击 -35%；敌速 -15%",
+        "逆沙尘部署：攻击 -50%；敌速 -15%"
+      ],
+      "icon": "data/icons/domains/idea_2.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_3",
+      "name": "去温栏",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/2/26/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E5%8E%BB%E6%B8%A9%E6%A0%8F%E2%80%9D.png?v=mhjuybwczudrq32cii5q2ykv3lsnxzq",
+      "effects": [
+        "部署冻结 5 秒；每 60 秒全体寒冷 15 秒",
+        "部署冻结 10 秒；每 45 秒全体寒冷 15 秒",
+        "部署冻结 15 秒；每 30 秒全体寒冷 15 秒"
+      ],
+      "icon": "data/icons/domains/idea_3.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_4",
+      "name": "微型胶囊",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/b/bf/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E5%BE%AE%E5%9E%8B%E8%83%B6%E5%9B%8A%E2%80%9D.png?v=l7runn0nxzplot7uavfekr61olfvx12",
+      "effects": [
+        "物理承伤 +25%",
+        "物理承伤 +40%",
+        "物理承伤 +70%"
+      ],
+      "icon": "data/icons/domains/idea_4.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_5",
+      "name": "储藏室",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/c/c7/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E5%82%A8%E8%97%8F%E5%AE%A4%E2%80%9D.png?v=3lwyodl268vp7uox7bksunwiiluex2a",
+      "effects": [
+        "零件售价 -10%；商店栏位 -1",
+        "零件售价 -30%；商店栏位 -2",
+        "零件售价 -50%；商店栏位 -3"
+      ],
+      "icon": "data/icons/domains/idea_5.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_6",
+      "name": "易碎同盟",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/e/e4/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E6%98%93%E7%A2%8E%E5%90%8C%E7%9B%9F%E2%80%9D.png?v=2c014ipxr493ojfhtw5w43f4feuncwc",
+      "effects": [
+        "每次部署后一次性损失 30% 生命",
+        "每次部署后一次性损失 50% 生命",
+        "每次部署后一次性损失 70% 生命"
+      ],
+      "icon": "data/icons/domains/idea_6.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_7",
+      "name": "停止点",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/f/f7/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E5%81%9C%E6%AD%A2%E7%82%B9%E2%80%9D.png?v=tbxbz7ts4u0kdogsbfr4wtk82zan56z",
+      "effects": [
+        "自然回费效率 -20%",
+        "自然回费效率 -25%",
+        "自然回费效率 -40%"
+      ],
+      "icon": "data/icons/domains/idea_7.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_8",
+      "name": "希望的沃土",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/6/66/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E5%B8%8C%E6%9C%9B%E7%9A%84%E6%B2%83%E5%9C%9F%E2%80%9D.png?v=5wjs64z47ehy4f066m078pldbtv8ngy",
+      "effects": [
+        "我方攻/血 +10%/+10%；胜利掉落零件",
+        "我方攻/血 +15%/+20%；胜利掉落零件",
+        "我方攻/血 +20%/+30%；胜利掉落零件"
+      ],
+      "icon": "data/icons/domains/idea_8.png",
+      "removable": false,
+      "note": "特殊正面理念：不可消除；不能据此推断紧急作战；与增益搭配。"
+    },
+    {
+      "id": "idea_9",
+      "name": "弥散虚雾",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/5/5d/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E5%BC%A5%E6%95%A3%E8%99%9A%E9%9B%BE%E2%80%9D.png?v=ri9akuc61vzmlkt6stdjybw1bms8abs",
+      "effects": [
+        "连通节点无法自然揭示",
+        "连通节点无法自然揭示",
+        "连通节点无法自然揭示"
+      ],
+      "icon": "data/icons/domains/idea_9.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "idea_10",
+      "name": "美丽新大地",
+      "kind": "idea",
+      "url": "https://media.prts.wiki/6/65/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E2%80%9C%E7%BE%8E%E4%B8%BD%E6%96%B0%E5%A4%A7%E5%9C%B0%E2%80%9D.png?v=9m9g5y11phlavendozpjigda69r7wlz",
+      "effects": [
+        "我方战场模型隐藏",
+        "我方战场模型隐藏",
+        "我方战场模型隐藏"
+      ],
+      "icon": "data/icons/domains/idea_10.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "policy_11",
+      "name": "改良",
+      "kind": "policy",
+      "url": "https://media.prts.wiki/1/13/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E6%94%B9%E8%89%AF.png?v=4delxyh44n6tq7jkw6rvck6xbpuiofg",
+      "effects": [
+        "受影响节点：源石锭 -2"
+      ],
+      "icon": "data/icons/domains/policy_11.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "policy_12",
+      "name": "修正",
+      "kind": "policy",
+      "url": "https://media.prts.wiki/b/be/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E4%BF%AE%E6%AD%A3.png?v=fqqbul6o348vwfb575atf0u7sevh3on",
+      "effects": [
+        "受影响节点：护盾 -1"
+      ],
+      "icon": "data/icons/domains/policy_12.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "policy_13",
+      "name": "激进",
+      "kind": "policy",
+      "url": "https://media.prts.wiki/0/0a/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E6%BF%80%E8%BF%9B.png?v=smxtyw47op3zi3153opso83r7pielaz",
+      "effects": [
+        "受影响节点：目标生命 -1，最低保留 1"
+      ],
+      "icon": "data/icons/domains/policy_13.png",
+      "removable": true,
+      "note": ""
+    },
+    {
+      "id": "policy_14",
+      "name": "增益",
+      "kind": "policy",
+      "url": "https://media.prts.wiki/d/dd/%E6%B2%89%E6%B2%A6%E8%80%85%E7%9A%84%E9%BB%91%E6%B5%81%E6%A0%91%E6%B5%B7_%E4%B9%8C%E6%89%98%E9%82%A6%E5%B9%B8%E7%A6%8F%E8%AE%BA_%E5%A2%9E%E7%9B%8A.png?v=67yqjqsi882q2uqy90j47bo2u7ltkmu",
+      "effects": [
+        "受影响节点：自然物估价 +2"
+      ],
+      "icon": "data/icons/domains/policy_14.png",
+      "removable": true,
+      "note": ""
+    }
+  ]
+}
